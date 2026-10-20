@@ -5,7 +5,7 @@ Une commande ou une option retirée, un format de sortie ou un code de sortie mo
 
 ## Étapes
 
-1. Mettre à jour `CHANGELOG.md` : déplacer « Non publié » sous la nouvelle version, avec la date.
+1. Facultatif : compléter `CHANGELOG.md` (les notes de la release GitHub sont, elles, générées automatiquement à partir des commits).
 2. Vérifier en local :
 
    ```sh
@@ -13,15 +13,23 @@ Une commande ou une option retirée, un format de sortie ou un code de sortie mo
    make snapshot          # goreleaser à blanc → dist/
    ```
 
-3. Taguer et pousser :
+3. Publier : *Actions → Release → Run workflow*, sans rien remplir.
 
-   ```sh
-   git tag -a v1.0.0 -m "v1.0.0"
-   git push origin v1.0.0
-   ```
+   La prochaine version est calculée d'après le dernier tag et les messages de commit
+   ([`scripts/next-version.sh`](../scripts/next-version.sh)) :
 
-   Ou, sans tag local : *Actions → Release → Run workflow*, avec la version (`v1.0.0`).
-   Le workflow crée le tag sur `main` puis publie.
+   | Commits depuis la dernière version | Version |
+   |---|---|
+   | seulement `fix:`, `docs:`, `chore:`… | corrective (`v0.1.0` → `v0.1.1`) |
+   | au moins un `feat:` | mineure (`v0.1.1` → `v0.2.0`) |
+   | un `feat!:` ou `BREAKING CHANGE` | majeure (`v1.2.3` → `v2.0.0`) ; en 0.x, mineure |
+
+   Le champ *Type de version* force `patch`, `minor` ou `major` (ex. passage en `v1.0.0`),
+   et *Version exacte* impose un numéro (pré-release comprise, `v1.1.0-rc.1`).
+   Le workflow crée le tag sur `main` puis publie. Sans aucun commit depuis la dernière
+   version, il s'arrête sans rien publier.
+
+   On peut aussi taguer à la main : `git tag -a v1.0.0 -m v1.0.0 && git push origin v1.0.0`.
 
 Le workflow [`release.yml`](../.github/workflows/release.yml) lance les tests puis GoReleaser,
 qui publie sur la release GitHub :

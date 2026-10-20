@@ -5,6 +5,11 @@ versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+
+- Publication en un clic : *Actions → Release → Run workflow* calcule la prochaine version
+  d'après les commits (`scripts/next-version.sh`), la tague et la publie.
+
 ### Corrigé
 
 - Sécurisation du téléchargement des factures : écriture temporaire, remplacement uniquement

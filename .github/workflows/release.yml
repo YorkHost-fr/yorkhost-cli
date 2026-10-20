@@ -1,17 +1,24 @@
 name: Release
 
 # Deux façons de publier :
+#   - Actions → Release → Run workflow : la prochaine version est calculée
+#     d'après le dernier tag et les commits (feat → mineure, fix → corrective,
+#     feat! → majeure ; scripts/next-version.sh), taguée sur main, puis publiée.
+#     On peut forcer le type (patch, minor, major) ou donner une version exacte.
 #   - pousser un tag : git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3
-#   - Actions → Release → Run workflow, avec la version : le workflow crée le
-#     tag sur le commit choisi (main par défaut) puis publie.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
     inputs:
+      bump:
+        description: "Type de version (auto = d'après les commits)"
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
       version:
-        description: "Version à publier (ex. v0.1.0)"
-        required: true
+        description: "Version exacte (facultatif, ex. v1.0.0) — prioritaire sur le type"
+        required: false
         type: string
 
 permissions:
@@ -36,8 +43,12 @@ jobs:
       - name: Créer le tag (déclenchement manuel)
         if: github.event_name == 'workflow_dispatch'
         env:
+          BUMP: ${{ inputs.bump }}
           VERSION: ${{ inputs.version }}
         run: |
+          if [ -z "$VERSION" ]; then
+            VERSION=$(scripts/next-version.sh "$BUMP")
+          fi
           if ! printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
             echo "Version invalide : $VERSION (attendu vMAJEUR.MINEUR.CORRECTIF)" >&2
             exit 1
@@ -46,6 +57,8 @@ jobs:
             echo "Le tag $VERSION existe déjà" >&2
             exit 1
           fi
+          echo "Publication de $VERSION"
+          echo "### Publication de \`$VERSION\`" >> "$GITHUB_STEP_SUMMARY"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$VERSION" -m "$VERSION"
