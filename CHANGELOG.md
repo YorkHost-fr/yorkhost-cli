@@ -5,6 +5,12 @@ versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Corrigé
+
+- Sécurisation du téléchargement des factures : écriture temporaire, remplacement uniquement
+  après succès et option `--force`.
+- Documentation du fait que `yorkhost api` contourne les confirmations des commandes dédiées.
+
 ## [0.1.0] - 2026-10-19
 
 ### Ajouté

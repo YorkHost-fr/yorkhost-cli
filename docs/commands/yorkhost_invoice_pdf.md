@@ -17,6 +17,7 @@ yorkhost invoice pdf <id> [options]
 
 ```
   -f, --file string   fichier ou dossier de destination (- = stdout)
+      --force         écraser le fichier de destination s'il existe
   -h, --help          aide de yorkhost invoice pdf
       --open          ouvrir le PDF après téléchargement
 ```

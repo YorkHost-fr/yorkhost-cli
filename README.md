@@ -107,10 +107,11 @@ Forme générale, comme `scw`, `ovhcloud` ou `aws` : **`yorkhost <ressource> <ve
 Chaque commande a son aide : `yorkhost <commande> --help`. Référence complète, générée
 depuis le code : [docs/commands](docs/commands/yorkhost.md).
 
-**Garde-fous** : arrêt, redémarrage, suppression et commande demandent une confirmation
+**Garde-fous** : dans les commandes dédiées, arrêt, redémarrage, suppression et commande demandent une confirmation
 (`--yes` pour l'automatiser). Une commande passe toujours par un **devis** avant de créer
 la facture, et le paiement se fait sur la page sécurisée de l'espace client : aucun moyen de
-paiement ne transite par le CLI.
+paiement ne transite par le CLI. La commande avancée `yorkhost api` envoie toutefois les
+requêtes brutes sans ces confirmations ; vérifiez toute écriture avant de l'exécuter.
 
 ## Sorties et scripts
 

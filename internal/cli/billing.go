@@ -99,7 +99,7 @@ func newInvoiceCmd(a *App) *cobra.Command {
 	}
 
 	var file string
-	var openIt bool
+	var openIt, force bool
 	pdf := &cobra.Command{
 		Use:   "pdf <id>",
 		Short: "Télécharger le PDF d'une facture",
@@ -124,16 +124,7 @@ func newInvoiceCmd(a *App) *cobra.Command {
 			if dest == "-" {
 				return download(ctx(cmd), u, a.Stdout)
 			}
-			fh, err := os.Create(dest)
-			if err != nil {
-				return err
-			}
-			if err := download(ctx(cmd), u, fh); err != nil {
-				fh.Close()
-				os.Remove(dest)
-				return err
-			}
-			if err := fh.Close(); err != nil {
+			if err := downloadFile(ctx(cmd), u, dest, force); err != nil {
 				return err
 			}
 			a.Printer.Success("Facture enregistrée : %s", dest)
@@ -148,6 +139,7 @@ func newInvoiceCmd(a *App) *cobra.Command {
 		},
 	}
 	pdf.Flags().StringVarP(&file, "file", "f", "", "fichier ou dossier de destination (- = stdout)")
+	pdf.Flags().BoolVar(&force, "force", false, "écraser le fichier de destination s'il existe")
 	pdf.Flags().BoolVar(&openIt, "open", false, "ouvrir le PDF après téléchargement")
 
 	pay := &cobra.Command{
@@ -202,6 +194,56 @@ func download(c context.Context, u string, w io.Writer) error {
 	}
 	_, err = io.Copy(w, res.Body)
 	return err
+}
+
+// downloadFile télécharge dans un fichier temporaire du même dossier, puis le
+// renomme seulement quand le téléchargement et la fermeture ont réussi. Ainsi,
+// une erreur réseau ne tronque jamais un fichier de destination existant.
+func downloadFile(c context.Context, u, dest string, force bool) error {
+	if !force {
+		if _, err := os.Stat(dest); err == nil {
+			return fmt.Errorf("%s existe déjà : utilisez --force pour l'écraser", dest)
+		} else if !errors.Is(err, os.ErrNotExist) {
+			return err
+		}
+	}
+	dir := filepath.Dir(dest)
+	tmp, err := os.CreateTemp(dir, ".yorkhost-invoice-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+	if err := tmp.Chmod(0o644); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := download(c, u, tmp); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Sync(); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if !force {
+		// Un lien dur publie le fichier sans fenêtre entre une vérification et
+		// le renommage : l'opération échoue atomiquement si dest existe déjà.
+		if err := os.Link(tmpName, dest); err != nil {
+			if errors.Is(err, os.ErrExist) {
+				return fmt.Errorf("%s existe déjà : utilisez --force pour l'écraser", dest)
+			}
+			return fmt.Errorf("finalisation de %s : %w", dest, err)
+		}
+		return nil
+	}
+	if err := os.Rename(tmpName, dest); err != nil {
+		return fmt.Errorf("finalisation de %s : %w", dest, err)
+	}
+	return nil
 }
 
 // ------------------------------------------------------------ catalogue

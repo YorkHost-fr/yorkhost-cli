@@ -91,6 +91,10 @@ echo 'print(2**10)' | yorkhost sandbox exec sbxabcdefghijkl -- python3
 
 Pour une route sans commande dédiée, ou pour explorer l'API avec vos identifiants :
 
+> **Attention :** cette commande brute n'applique pas les confirmations de sécurité
+> des commandes dédiées. Une requête `POST`, `PUT` ou `DELETE` est envoyée directement ;
+> vérifiez la méthode, le chemin et les données avant de l'exécuter.
+
 ```sh
 yorkhost api /account
 yorkhost api /invoices --paginate

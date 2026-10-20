@@ -6,6 +6,11 @@ Requête brute sur l'API client (comme gh api)
 
 Envoie une requête authentifiée à l'API client et affiche la réponse JSON.
 Le chemin est relatif à /client/v1 s'il ne commence pas par /client/.
+
+Attention : cette commande brute n'applique pas les confirmations de sécurité
+des commandes dédiées. Une requête POST, PUT ou DELETE est envoyée directement ;
+vérifiez la méthode, le chemin et les données avant de l'exécuter.
+
 Spécification : https://github.com/YorkHost-fr/yorkhost-cli/blob/main/docs/api.md
 
 ```
