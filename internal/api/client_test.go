@@ -59,6 +59,13 @@ func TestErrorParsingAndHints(t *testing.T) {
 	}
 }
 
+func TestBetaFullHint(t *testing.T) {
+	e := parseError(&Response{Status: 409, Header: http.Header{}, Body: []byte(`{"error":"Les règles de filtrage personnalisées sont en bêta : toutes les places de test sont déjà attribuées. Réessayez plus tard.","code":"beta_full"}`)})
+	if e.Code != "beta_full" || !strings.Contains(e.Error(), "places de test") || !strings.Contains(e.Error(), "réessayez plus tard") {
+		t.Fatalf("beta_full : %s", e.Error())
+	}
+}
+
 func TestOAuthStyleError(t *testing.T) {
 	e := parseError(&Response{Status: 400, Header: http.Header{}, Body: []byte(`{"error":"invalid_grant","error_description":"refresh token expired"}`)})
 	if e.Code != "invalid_grant" || e.Message != "refresh token expired" {
