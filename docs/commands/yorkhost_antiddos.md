@@ -1,12 +1,11 @@
 ## yorkhost antiddos
 
-Anti-DDoS : attaques détectées, IP et serveurs protégés
+Anti-DDoS : attaques détectées, IP protégées et règles
 
 ### Options
 
 ```
-      --days int   période en jours (1 à 365) (default 90)
-  -h, --help       aide de yorkhost antiddos
+  -h, --help   aide de yorkhost antiddos
 ```
 
 ### Options globales
@@ -25,6 +24,7 @@ Anti-DDoS : attaques détectées, IP et serveurs protégés
 
 * [yorkhost](yorkhost.md)	 - CLI officiel YorkHost : VPS, serveurs de jeu, facturation, support, sandboxes
 * [yorkhost antiddos attacks](yorkhost_antiddos_attacks.md)	 - Attaques détectées sur vos IP
+* [yorkhost antiddos rules](yorkhost_antiddos_rules.md)	 - Règles anti-DDoS de vos IP (créées en attente, appliquées par le NOC)
 * [yorkhost antiddos status](yorkhost_antiddos_status.md)	 - État de la protection
 * [yorkhost antiddos targets](yorkhost_antiddos_targets.md)	 - IP et serveurs de jeu protégés
 

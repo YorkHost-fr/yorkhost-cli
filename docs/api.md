@@ -24,7 +24,11 @@ tableau indique, pour chaque commande, la route appelée et la permission requis
 | `ticket types` | `GET /ticket-departments` | `tickets:read` |
 | `ticket create` | `POST /tickets` | `tickets:write` |
 | `ticket reply` | `POST /tickets/{id}/reply` | `tickets:write` |
-| `antiddos attacks/targets/status` | `GET /antiddos?days=` | `antiddos:read` |
+| `antiddos attacks/targets/status` | `GET /antiddos?days=&ip=` | `antiddos:read` |
+| `antiddos rules list` | `GET /antiddos/rules?ip=` | `antiddos:read` |
+| `antiddos rules create` | `POST /antiddos/rules` `{"ip","policy","proto_list","dport_list","sport_list","sip_list","description","position"}` | `antiddos:write` |
+| `antiddos rules move` | `POST /antiddos/rules/{id}/move` `{"position"}` | `antiddos:write` |
+| `antiddos rules delete` | `DELETE /antiddos/rules/{id}` (après confirmation) | `antiddos:write` |
 | `catalog` | `GET /catalog` | `services:read` |
 | `order create` | `POST /orders` (devis, puis avec `confirmation_token`) | `orders:write` |
 | `sandbox list`, `sandbox offers` | `GET /sandboxes` | `sandbox:read` |

@@ -94,7 +94,7 @@ Forme générale, comme `scw`, `ovhcloud` ou `aws` : **`yorkhost <ressource> <ve
 | `vps` | `list`, `get`, `start`, `stop`, `restart`, `metrics`, `ssh` | `yorkhost vps ssh 1234` |
 | `game` | `list`, `get`, `start`, `stop`, `restart`, `kill`, `metrics`, `open` | `yorkhost game metrics fivem-rp` |
 | `sandbox` | `list`, `get`, `create`, `delete`, `ssh`, `exec`, `ls`, `cat`, `upload`, `download`, `links`, `keep`, `claim`, `offers`, `key …`, `secret …` | `yorkhost sandbox create --ssh` |
-| `antiddos` | `attacks`, `targets`, `status` | `yorkhost antiddos attacks --days 7` |
+| `antiddos` | `attacks`, `targets`, `status`, `rules list/create/move/delete` | `yorkhost antiddos rules create --ip 203.0.113.10 --policy "FiveM UDP" --proto udp --dport 30120` |
 | `account` | `get` | `yorkhost account` |
 | `invoice` | `list`, `get`, `pdf`, `pay` | `yorkhost invoice pdf 4242 --open` |
 | `ticket` | `list`, `get`, `create`, `reply`, `types` | `yorkhost ticket create -s "Panne" -b @log.txt` |

@@ -37,7 +37,7 @@ Documentation : https://github.com/YorkHost-fr/yorkhost-cli
 ### Voir aussi
 
 * [yorkhost account](yorkhost_account.md)	 - Profil du compte (e-mail, crédit, impayés)
-* [yorkhost antiddos](yorkhost_antiddos.md)	 - Anti-DDoS : attaques détectées, IP et serveurs protégés
+* [yorkhost antiddos](yorkhost_antiddos.md)	 - Anti-DDoS : attaques détectées, IP protégées et règles
 * [yorkhost api](yorkhost_api.md)	 - Requête brute sur l'API client (comme gh api)
 * [yorkhost auth](yorkhost_auth.md)	 - Sessions et identifiants (status, token, login, logout)
 * [yorkhost catalog](yorkhost_catalog.md)	 - Produits commandables et tarifs

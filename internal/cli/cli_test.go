@@ -21,6 +21,7 @@ const testKey = "yhk_client_v1_AAAAAAAAAAAAAAAA_BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 type call struct {
 	Method, Path string
 	Body         map[string]any
+	Query        string
 }
 
 // fakeAPI : routes /client/v1 avec les formats de yorkhost-api.
@@ -35,7 +36,7 @@ func (f *fakeAPI) record(r *http.Request) map[string]any {
 	b, _ := io.ReadAll(r.Body)
 	_ = json.Unmarshal(b, &body)
 	f.mu.Lock()
-	f.calls = append(f.calls, call{r.Method, r.URL.Path, body})
+	f.calls = append(f.calls, call{r.Method, r.URL.Path, body, r.URL.RawQuery})
 	f.mu.Unlock()
 	return body
 }
@@ -120,6 +121,43 @@ func newFakeAPI(t *testing.T) *fakeAPI {
 	mux.HandleFunc("POST /client/v1/tickets", auth(func(w http.ResponseWriter, r *http.Request) {
 		f.record(r)
 		js(w, 200, map[string]any{"id": "t1", "number": "10234"})
+	}))
+	// Anti-DDoS : formats de yorkhost-api (internal/handlers/v1/client/antiddos.go).
+	mux.HandleFunc("GET /client/v1/antiddos", auth(func(w http.ResponseWriter, r *http.Request) {
+		f.record(r)
+		js(w, 200, map[string]any{"attacks": []any{map[string]any{"id": "a1", "alert_type": "udp_flood", "start_time": "2026-10-30T10:00:00Z", "power_bps": 2.5e9, "power_pps": 1.2e6,
+			"matches": []any{map[string]any{"type": "ipam", "ip": "203.0.113.10", "service_id": 101, "service_name": "web-prod"}}}},
+			"ipam_ips": []any{map[string]any{"ip": "203.0.113.10", "service_id": 101, "service_name": "web-prod"}}, "game_servers": []any{},
+			"protection_active": true, "protection_checked": true, "days": 90, "ip": r.URL.Query().Get("ip")})
+	}))
+	mux.HandleFunc("GET /client/v1/antiddos/rules", auth(func(w http.ResponseWriter, r *http.Request) {
+		f.record(r)
+		js(w, 200, map[string]any{"backend": "netops", "account_level": "standard",
+			"policies":     []any{map[string]any{"name": "FiveM UDP", "protocols": []any{"udp"}}, map[string]any{"name": "Drop"}},
+			"limits":       map[string]any{"max_rules_per_ip": 10},
+			"eligible_ips": []any{"203.0.113.10"},
+			"rules": []any{map[string]any{"id": "r_1", "ip": "203.0.113.10", "policy": "FiveM UDP", "proto_list": []any{"udp"}, "dport_list": []any{"30120"},
+				"sport_list": []any{}, "sip_list": []any{}, "status": "active", "position": 1, "description": "jeu"}}})
+	}))
+	mux.HandleFunc("POST /client/v1/antiddos/rules", auth(func(w http.ResponseWriter, r *http.Request) {
+		body := f.record(r)
+		if body["ip"] != "203.0.113.10" {
+			js(w, 403, map[string]any{"error": "Cette adresse n'est pas allouée à votre compte", "code": "ip_not_owned", "field": "ip"})
+			return
+		}
+		js(w, 201, map[string]any{"backend": "netops", "rule": map[string]any{"id": "r_2", "ip": body["ip"], "policy": body["policy"], "status": "pending", "position": 1}})
+	}))
+	mux.HandleFunc("POST /client/v1/antiddos/rules/{id}/move", auth(func(w http.ResponseWriter, r *http.Request) {
+		body := f.record(r)
+		js(w, 200, map[string]any{"backend": "netops", "rule": map[string]any{"id": r.PathValue("id"), "position": body["position"], "status": "active"}})
+	}))
+	mux.HandleFunc("DELETE /client/v1/antiddos/rules/{id}", auth(func(w http.ResponseWriter, r *http.Request) {
+		f.record(r)
+		if r.PathValue("id") != "r_1" {
+			js(w, 404, map[string]any{"error": "Unknown rule for this client", "code": "rule_not_found"})
+			return
+		}
+		js(w, 200, map[string]any{"backend": "netops", "rule_id": r.PathValue("id")})
 	}))
 	f.srv = httptest.NewServer(mux)
 	t.Cleanup(f.srv.Close)
@@ -355,5 +393,99 @@ func TestSparkline(t *testing.T) {
 	}
 	if s := Sparkline(nil); s != "-" {
 		t.Fatalf("vide = %q", s)
+	}
+}
+
+func TestAntiDDoSRules(t *testing.T) {
+	f := setup(t, true)
+
+	// Liste : table des règles sur stdout, politiques et IP éligibles sur stderr.
+	r := run(t, f, "", "antiddos", "rules", "list", "--ip", "203.0.113.10")
+	if r.code != 0 {
+		t.Fatalf("list : code %d %s", r.code, r.stderr)
+	}
+	for _, want := range []string{"r_1", "FiveM UDP", "30120", "active"} {
+		if !strings.Contains(r.stdout, want) {
+			t.Errorf("%q absent de :\n%s", want, r.stdout)
+		}
+	}
+	if !strings.Contains(r.stderr, "FiveM UDP, Drop") || !strings.Contains(r.stderr, "203.0.113.10") {
+		t.Errorf("politiques / IP éligibles absentes : %s", r.stderr)
+	}
+	if c := f.find("GET", "/client/v1/antiddos/rules"); len(c) != 1 || c[0].Query != "ip=203.0.113.10" {
+		t.Errorf("liste : %+v", c)
+	}
+	// -o json : réponse de l'API telle quelle.
+	r = run(t, f, "", "antiddos", "rules", "list", "-o", "json")
+	var st map[string]any
+	if err := json.Unmarshal([]byte(r.stdout), &st); err != nil || st["account_level"] != "standard" || st["eligible_ips"] == nil {
+		t.Fatalf("json = %s (%v)", r.stdout, err)
+	}
+
+	// Création : listes répétables ou séparées par des virgules.
+	r = run(t, f, "", "antiddos", "rules", "create", "--ip", "203.0.113.10", "--policy", "FiveM UDP",
+		"--proto", "udp", "--dport", "30120,30121", "--dport", "40000-40010", "--description", "jeu", "--position", "1")
+	if r.code != 0 || !strings.Contains(r.stdout, "r_2") {
+		t.Fatalf("create : code %d %s", r.code, r.stderr)
+	}
+	c := f.find("POST", "/client/v1/antiddos/rules")
+	if len(c) != 1 {
+		t.Fatalf("create : %+v", c)
+	}
+	b, _ := json.Marshal(c[0].Body)
+	if string(b) != `{"description":"jeu","dport_list":["30120","30121","40000-40010"],"ip":"203.0.113.10","policy":"FiveM UDP","position":1,"proto_list":["udp"]}` {
+		t.Errorf("corps envoyé : %s", b)
+	}
+	// Champs requis : erreur d'usage, rien n'est envoyé.
+	if r := run(t, f, "", "antiddos", "rules", "create", "--policy", "Drop"); r.code != ExitUsage {
+		t.Errorf("sans --ip : code %d", r.code)
+	}
+	if r := run(t, f, "", "antiddos", "rules", "create", "--ip", "203.0.113.10", "--policy", "Drop", "--position", "0"); r.code != ExitUsage {
+		t.Errorf("--position 0 : code %d", r.code)
+	}
+	if n := len(f.find("POST", "/client/v1/antiddos/rules")); n != 1 {
+		t.Errorf("%d créations envoyées", n)
+	}
+	// Refus de l'API : message, code et conseil.
+	r = run(t, f, "", "antiddos", "rules", "create", "--ip", "198.51.100.1", "--policy", "Drop")
+	if r.code == 0 || !strings.Contains(r.stderr, "ip_not_owned") || !strings.Contains(r.stderr, "rules list") {
+		t.Errorf("refus : code %d %s", r.code, r.stderr)
+	}
+
+	// Déplacement.
+	if r := run(t, f, "", "antiddos", "rules", "move", "r_1"); r.code != ExitUsage {
+		t.Errorf("move sans --position : code %d", r.code)
+	}
+	r = run(t, f, "", "antiddos", "rules", "move", "r_1", "--position", "2")
+	if mv := f.find("POST", "/client/v1/antiddos/rules/r_1/move"); r.code != 0 || len(mv) != 1 || mv[0].Body["position"] != 2.0 {
+		t.Errorf("move : code %d %s %+v", r.code, r.stderr, mv)
+	}
+
+	// Suppression : confirmation obligatoire (non interactif sans --yes).
+	r = run(t, f, "", "antiddos", "rules", "delete", "r_1")
+	if r.code != ExitAborted || !strings.Contains(r.stderr, "--yes") {
+		t.Fatalf("delete sans --yes : code %d %s", r.code, r.stderr)
+	}
+	if len(f.find("DELETE", "/client/v1/antiddos/rules/r_1")) != 0 {
+		t.Fatal("suppression envoyée sans confirmation")
+	}
+	r = run(t, f, "", "antiddos", "rules", "delete", "r_1", "--yes", "-o", "json")
+	if r.code != 0 || !strings.Contains(r.stdout, `"rule_id": "r_1"`) && !strings.Contains(r.stdout, `"rule_id":"r_1"`) {
+		t.Fatalf("delete --yes : code %d %q %s", r.code, r.stdout, r.stderr)
+	}
+	if r := run(t, f, "", "antiddos", "rules", "delete", "r_9", "--yes"); r.code == 0 || !strings.Contains(r.stderr, "rule_not_found") {
+		t.Errorf("règle inconnue : code %d %s", r.code, r.stderr)
+	}
+}
+
+func TestAntiDDoSAttacksByIP(t *testing.T) {
+	f := setup(t, true)
+	r := run(t, f, "", "antiddos", "attacks", "--ip", "203.0.113.10", "--days", "7")
+	if r.code != 0 || !strings.Contains(r.stdout, "203.0.113.10 (web-prod)") {
+		t.Fatalf("attacks : code %d %s %s", r.code, r.stdout, r.stderr)
+	}
+	c := f.find("GET", "/client/v1/antiddos")
+	if len(c) != 1 || c[0].Query != "days=7&ip=203.0.113.10" {
+		t.Errorf("requête : %+v", c)
 	}
 }

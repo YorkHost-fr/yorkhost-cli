@@ -181,6 +181,6 @@ réponse réels.
 Les routes de l'API client actuelles couvrent la lecture, l'alimentation (start/stop/restart),
 la facturation, le support, l'anti-DDoS, les commandes et les sandboxes. Les permissions
 `vps:manage`, `vps:reinstall`, `game:console`, `game:files:read`, `game:manage`,
-`game:reinstall`, `dns:*` et `antiddos:write` existent déjà mais n'ouvrent encore aucune route :
-les commandes correspondantes (réinstallation, console, fichiers de jeu, DNS…) arriveront avec
-elles. Le CLI demande ces permissions dès la connexion, pour ne pas avoir à se reconnecter.
+`game:reinstall` et `dns:*` existent déjà mais ne servent encore à aucune commande du CLI :
+les commandes correspondantes (réinstallation, console, fichiers de jeu, DNS…) arriveront
+plus tard. Le CLI demande ces permissions dès la connexion, pour ne pas avoir à se reconnecter.
