@@ -69,7 +69,7 @@ allowlist IP si l'adresse de sortie est fixe, expiration.
 | `tickets:read` / `tickets:write` | `ticket list/get/types` / `ticket create/reply` |
 | `vps:read` / `vps:power` | `vps get/metrics/ssh` / `vps start/stop/restart` |
 | `game:read` / `game:power` | `game get/metrics/open` / `game start/stop/restart/kill` |
-| `antiddos:read` | `antiddos` |
+| `antiddos:read` / `antiddos:write` | `antiddos attacks/targets/status`, `antiddos rules list` / `antiddos rules create/move/delete` |
 | `orders:write` | `order create`, `sandbox keep`, `sandbox claim` |
 | `sandbox:read` / `sandbox:write` | `sandbox list/get/ls/cat/download/offers`, `key list`, `secret list` / le reste de `sandbox` |
 

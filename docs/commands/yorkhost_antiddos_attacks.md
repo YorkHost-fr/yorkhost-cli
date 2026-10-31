@@ -6,17 +6,25 @@ Attaques détectées sur vos IP
 yorkhost antiddos attacks [options]
 ```
 
+### Exemples
+
+```
+  yorkhost antiddos attacks --days 7
+  yorkhost antiddos attacks --ip 203.0.113.10 -o json
+```
+
 ### Options
 
 ```
-  -h, --help   aide de yorkhost antiddos attacks
+      --days int    période en jours (1 à 365) (default 90)
+  -h, --help        aide de yorkhost antiddos attacks
+      --ip string   une seule adresse IP (cibles et attaques de cette IP)
 ```
 
 ### Options globales
 
 ```
       --api-url string   URL de l'API (env YORKHOST_API_URL)
-      --days int         période en jours (1 à 365) (default 90)
       --debug            journal des requêtes HTTP sur stderr (sans secrets)
       --no-color         désactiver les couleurs (env NO_COLOR)
   -o, --output string    format de sortie : table, wide, json, yaml (env YORKHOST_OUTPUT)
@@ -27,5 +35,5 @@ yorkhost antiddos attacks [options]
 
 ### Voir aussi
 
-* [yorkhost antiddos](yorkhost_antiddos.md)	 - Anti-DDoS : attaques détectées, IP et serveurs protégés
+* [yorkhost antiddos](yorkhost_antiddos.md)	 - Anti-DDoS : attaques détectées, IP protégées et règles
 

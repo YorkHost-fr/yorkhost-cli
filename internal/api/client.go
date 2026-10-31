@@ -337,6 +337,18 @@ func (e *Error) Hint() string {
 		return "relancez la commande pour obtenir un nouveau devis"
 	case "route_unavailable":
 		return "route non ouverte aux clés API"
+	case "ip_not_owned":
+		return "choisissez une IP éligible : yorkhost antiddos rules list"
+	case "policy_unknown", "policy_unavailable":
+		return "politiques disponibles : yorkhost antiddos rules list"
+	case "extended_required":
+		return "réservé aux comptes étendus : demandez-le au support (yorkhost ticket create)"
+	case "rule_not_found":
+		return "identifiants des règles : yorkhost antiddos rules list"
+	case "rules_disabled":
+		return "règles anti-DDoS non disponibles pour le moment"
+	case "netops_unavailable":
+		return "service des règles anti-DDoS indisponible : réessayez plus tard"
 	}
 	if e.Status == http.StatusNotFound && e.Message == "not found" && e.Code == "" {
 		return "API client fermée sur ce serveur, ou URL d'API erronée (yorkhost config get api_url)"

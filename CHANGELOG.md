@@ -7,6 +7,10 @@ versions : [SemVer](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- `antiddos rules list/create/move/delete` : règles anti-DDoS de vos IP (politiques disponibles,
+  IP éligibles, création en attente d'application par le NOC, ordre, suppression avec
+  confirmation ou `--yes`), en table ou `-o json`.
+- `antiddos attacks/targets/status --ip` : attaques et cibles d'une seule adresse.
 - Publication en un clic : *Actions → Release → Run workflow* calcule la prochaine version
   d'après les commits (`scripts/next-version.sh`), la tague et la publie.
 
