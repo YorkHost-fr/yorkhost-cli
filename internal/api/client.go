@@ -338,7 +338,9 @@ func (e *Error) Hint() string {
 	case "route_unavailable":
 		return "route non ouverte aux clés API"
 	case "ip_not_owned":
-		return "choisissez une IP éligible : yorkhost antiddos rules list"
+		return "choisissez une IP éligible (VPS ou serveur dédié) : yorkhost antiddos rules list"
+	case "beta_full":
+		return "règles anti-DDoS en bêta : toutes les places de test sont attribuées, réessayez plus tard"
 	case "policy_unknown", "policy_unavailable":
 		return "politiques disponibles : yorkhost antiddos rules list"
 	case "extended_required":
