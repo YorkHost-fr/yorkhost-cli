@@ -302,7 +302,7 @@ var antiddosRuleColumns = []output.Column{
 	{Header: "Politique", Path: "policy", Max: 28},
 	{Header: "Protocoles", Value: func(r map[string]any) any { return strings.Join(strs(r["proto_list"]), ",") }},
 	{Header: "Ports dest.", Value: func(r map[string]any) any { return strings.Join(strs(r["dport_list"]), ",") }, Max: 24},
-	statusCol("Statut", "status"),
+	statusCol(),
 	{Header: "Ports source", Value: func(r map[string]any) any { return strings.Join(strs(r["sport_list"]), ",") }, Wide: true},
 	{Header: "Sources", Value: func(r map[string]any) any { return strings.Join(strs(r["sip_list"]), ",") }, Wide: true, Max: 40},
 	{Header: "Description", Path: "description", Wide: true, Max: 40},

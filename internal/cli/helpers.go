@@ -243,9 +243,9 @@ func strs(v any) []string {
 	return out
 }
 
-// statusCol : colonne de statut colorée.
-func statusCol(header, path string) output.Column {
-	return output.Column{Header: header, Path: path, Color: output.Status}
+// statusCol : colonne « Statut » colorée (champ status).
+func statusCol() output.Column {
+	return output.Column{Header: "Statut", Path: "status", Color: output.Status}
 }
 
 // noArgsOrOne : 0 ou 1 argument (ID facultatif grâce au défaut du profil).

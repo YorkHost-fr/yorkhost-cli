@@ -53,7 +53,7 @@ func serviceColumns() []output.Column {
 		{Header: "ID", Path: "id"},
 		{Header: "Nom", Path: "name", Max: 36},
 		{Header: "Type", Path: "type"},
-		statusCol("Statut", "status"),
+		statusCol(),
 		{Header: "Produit", Path: "productName", Max: 30},
 		{Header: "Échéance", Path: "nextDueDate"},
 		{Header: "Prix", Value: price, Wide: true},

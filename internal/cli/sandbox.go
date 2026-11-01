@@ -56,7 +56,7 @@ func sandboxColumns() []output.Column {
 	return []output.Column{
 		{Header: "ID", Path: "id"},
 		{Header: "Type", Path: "kind"},
-		statusCol("Statut", "status"),
+		statusCol(),
 		{Header: "SSH", Path: "ssh"},
 		{Header: "Arrêt", Path: "run_until", Format: output.Relative},
 		{Header: "Preview", Path: "preview_url", Wide: true},

@@ -55,7 +55,7 @@ func newInvoiceCmd(a *App) *cobra.Command {
 				{Header: "Date", Path: "date"},
 				{Header: "Échéance", Path: "dueDate"},
 				{Header: "Total", Value: invoiceTotal},
-				statusCol("Statut", "status"),
+				statusCol(),
 			})
 		},
 	}
