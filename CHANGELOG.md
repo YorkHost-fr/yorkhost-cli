@@ -5,12 +5,19 @@ versions : [SemVer](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [0.2.0] - 2026-11-01
+
 ### Ajouté
 
 - `antiddos rules list/create/move/delete` : règles anti-DDoS de vos IP (politiques disponibles,
   IP éligibles, création en attente d'application par le NOC, ordre, suppression avec
   confirmation ou `--yes`), en table ou `-o json`.
 - `antiddos attacks/targets/status --ip` : attaques et cibles d'une seule adresse.
+
+## [0.1.1] - 2026-10-20
+
+### Ajouté
+
 - Publication en un clic : *Actions → Release → Run workflow* calcule la prochaine version
   d'après les commits (`scripts/next-version.sh`), la tague et la publie.
 
@@ -40,5 +47,7 @@ versions : [SemVer](https://semver.org/lang/fr/).
 - Releases GoReleaser (Linux, macOS, Windows, FreeBSD ; deb, rpm, apk), scripts d'installation
   avec vérification SHA-256.
 
-[Non publié]: https://github.com/YorkHost-fr/yorkhost-cli/compare/v0.1.0...HEAD
+[Non publié]: https://github.com/YorkHost-fr/yorkhost-cli/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/YorkHost-fr/yorkhost-cli/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/YorkHost-fr/yorkhost-cli/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/YorkHost-fr/yorkhost-cli/releases/tag/v0.1.0
