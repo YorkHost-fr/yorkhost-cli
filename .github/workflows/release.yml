@@ -38,6 +38,15 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+      # Les binaires publiés doivent être compilés avec la ligne `toolchain` de
+      # go.mod (correctifs de sécurité), pas avec la ligne `go` (1.26.0).
+      - name: Vérifier la version de Go
+        run: |
+          set -euo pipefail
+          attendu="$(sed -n 's/^toolchain \(go[0-9.]*\)$/\1/p' go.mod)"
+          [ -n "$attendu" ] || attendu="go$(sed -n 's/^go \([0-9.]*\)$/\1/p' go.mod)"
+          go version
+          [ "$(go env GOVERSION)" = "$attendu" ] || { echo "::error::go est $(go env GOVERSION), attendu $attendu"; exit 1; }
       - name: Tests
         run: go test -count=1 ./...
       - name: Créer le tag (déclenchement manuel)
