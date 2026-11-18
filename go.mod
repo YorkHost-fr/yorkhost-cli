@@ -2,6 +2,8 @@ module github.com/YorkHost-fr/yorkhost-cli
 
 go 1.26.0
 
+toolchain go1.26.11
+
 require (
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/term v0.47.0
